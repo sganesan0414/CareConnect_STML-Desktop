@@ -15,7 +15,8 @@ npm install
 ## Run
 
 ```bash
-npm start
+npm run dev    # Development mode with hot reload
+npm start      # Preview the built app
 ```
 
 > **Note:** If `npm start` exits immediately with `Cannot read properties of
@@ -25,6 +26,28 @@ npm start
 > ```bash
 > ELECTRON_RUN_AS_NODE= npm start
 > ```
+
+## Part 3: Desktop Accessibility Implementation
+
+The app implements the desktop accessibility requirement across the main screens and dialogs:
+
+- **Keyboard navigation** — All core features are reachable with keyboard only; Tab/Shift+Tab moves through controls, Escape closes dialogs, and custom controls such as Login tabs and Reminders filters support Left/Right/Home/End.
+- **Focus indicators** — Interactive elements use a visible `:focus-visible` outline, and main content receives focus on route changes so keyboard users can track where they are.
+- **Screen reader support** — Route changes announce through a live region, pages use semantic headings/labels, and dialogs expose proper ARIA roles and labels.
+- **High contrast mode** — The app includes an in-app high-contrast toggle (`Ctrl/Cmd+H`) that updates the global theme class and increases contrast across the shell. This should still be checked on Windows High Contrast / macOS Increase Contrast during manual testing.
+- **Reduced motion support** — Motion is reduced automatically for users with `prefers-reduced-motion` enabled.
+
+**Keyboard shortcuts available across the app:**
+- `Ctrl/Cmd + 1–6` — Navigate to Home, Daily Plan, Medications, Reminders, Journal, Settings
+- `Ctrl/Cmd + N` — New task/reminder/journal entry (context-dependent)
+- `Ctrl/Cmd + S` — Save (Settings, Reminders, Journal)
+- `Ctrl/Cmd + /` or `F1` — Show keyboard shortcuts
+- `Ctrl/Cmd + P` — Print Daily Plan
+- `Ctrl/Cmd + H` — Toggle the app's high-contrast mode (Ctrl-only on macOS)
+- `Ctrl/Cmd + =/–` — Increase/decrease text size
+- `F9` — Highlight emergency contact
+
+Manual verification target: test the app with keyboard only, NVDA on Windows (or VoiceOver on Mac), and the operating system's high-contrast setting.
 
 ## Build a distributable
 
@@ -37,12 +60,44 @@ npm run package  # unpacked app directory only
 
 ```
 src/
-  main.js              Main process: app lifecycle, windows, IPC handlers
-  preload.js           Secure bridge exposing a minimal API to the renderer
+  main/
+    index.js           Main process: app lifecycle, windows, IPC handlers
+    menu.js            Native menu with keyboard shortcuts
+    window-state.js    Window size/position persistence
+  preload/
+    index.js           Secure bridge exposing minimal API to renderer (contextBridge)
   renderer/
-    index.html         App UI (with a strict Content-Security-Policy)
-    renderer.js        Renderer logic (runs in the isolated page context)
-    styles.css         Styles
+    index.html         App UI (with strict Content-Security-Policy)
+    main.jsx           React entry point and router setup (HashRouter)
+    src/
+      App.jsx          Main app routing
+      lib/
+        accessibility.js   Shared accessibility hooks and focus management
+        auth.js            Session and account management (localStorage)
+        tasks.js           Task data store (localStorage)
+        meds.js            Medication data store (localStorage)
+        journal.js         Journal entry store (localStorage)
+        settings.js        Display preferences and accessibility settings
+        [... other shared modules ...]
+      pages/
+        Landing.jsx        Home / marketing page
+        Login.jsx          PIN and password sign-in
+        Register.jsx       Account creation
+        ForgotPassword.jsx Password reset
+        app/
+          AppShell.jsx     Layout wrapper with menu, sidebar, toolbar
+          Home.jsx         Patient or caregiver dashboard (mode-dependent)
+          DailyPlan.jsx    Patient's task checklist
+          Medications.jsx  Medication tracker with adherence strip
+          Reminders.jsx    Reminder management with filters
+          Journal.jsx      Shared patient–caregiver log
+          Settings.jsx     Display, accessibility, and account settings
+          [... modals: AddTaskModal, AddMedicationModal, ShortcutsModal ...]
+      styles/
+        base.css         Global styles and accessibility (skip link, focus, reduced-motion)
+        landing.css      Landing page styles
+        login.css        Auth pages (Login, Register, ForgotPassword)
+        dashboard.css    App shell and content area styles
 ```
 
 ## Security
