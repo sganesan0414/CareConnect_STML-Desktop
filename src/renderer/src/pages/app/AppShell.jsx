@@ -4,6 +4,7 @@ import { NAV_ITEMS, DIGIT_TO_ROUTE, EMERGENCY_CONTACT } from '../../lib/nav.js';
 import { getCurrentUser, clearSession } from '../../lib/auth.js';
 import { emitNew } from '../../lib/appEvents.js';
 import { loadSettings, saveSettings, applySettings, FONT_MIN, FONT_MAX } from '../../lib/settings.js';
+import { MENU_ACTIONS } from '@shared/ipc.js';
 import MenuBar from './MenuBar.jsx';
 import ShortcutsModal from './ShortcutsModal.jsx';
 
@@ -111,14 +112,14 @@ export default function AppShell() {
   useEffect(() => {
     if (!window.careconnect?.onMenuAction) return;
     return window.careconnect.onMenuAction((action) => {
-      if (action === 'shortcuts') setShowShortcuts(true);
-      if (action === 'signout') signOut();
-      if (action === 'new') emitNew();
-      if (action === 'emergency') flashEmergency();
-      if (action === 'print') printPlan();
-      if (action === 'bigger-text') adjustFont(1);
-      if (action === 'smaller-text') adjustFont(-1);
-      if (action === 'high-contrast') toggleContrast();
+      if (action === MENU_ACTIONS.SHORTCUTS) setShowShortcuts(true);
+      if (action === MENU_ACTIONS.SIGN_OUT) signOut();
+      if (action === MENU_ACTIONS.NEW) emitNew();
+      if (action === MENU_ACTIONS.EMERGENCY) flashEmergency();
+      if (action === MENU_ACTIONS.PRINT) printPlan();
+      if (action === MENU_ACTIONS.BIGGER_TEXT) adjustFont(1);
+      if (action === MENU_ACTIONS.SMALLER_TEXT) adjustFont(-1);
+      if (action === MENU_ACTIONS.HIGH_CONTRAST) toggleContrast();
     });
   }, [signOut, flashEmergency, printPlan, adjustFont, toggleContrast]);
 

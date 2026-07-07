@@ -1,11 +1,12 @@
-import { app, BrowserWindow, ipcMain, shell } from 'electron';
-import { join } from 'node:path';
+import { app, BrowserWindow, ipcMain, session } from 'electron';
+import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { dirname } from 'node:path';
 import { buildAppMenu } from './menu.js';
 import { getWindowState, trackWindowState } from './window-state.js';
+import { applySessionSecurity, hardenWebContents } from './security.js';
+import { IPC } from '@shared/ipc.js';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
+const currentDir = dirname(fileURLToPath(import.meta.url));
 const isDev = !!process.env.ELECTRON_RENDERER_URL;
 
 let mainWindow = null;
@@ -24,32 +25,28 @@ function createWindow() {
     title: 'CareConnect STML',
     backgroundColor: '#ffffff',
     webPreferences: {
-      preload: join(__dirname, '../preload/index.js'),
+      preload: join(currentDir, '../preload/index.js'),
       contextIsolation: true,
       nodeIntegration: false,
       sandbox: true,
+      webSecurity: true,
     },
   });
 
   trackWindowState(mainWindow);
   buildAppMenu(mainWindow);
 
+  // Open external links in the browser and block off-origin navigation.
+  hardenWebContents(mainWindow.webContents);
+
   // Common pattern: show the window only when the content is painted.
   mainWindow.once('ready-to-show', () => mainWindow.show());
-
-  // Common pattern: open external links in the user's browser, never in-app.
-  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
-    if (url.startsWith('http://') || url.startsWith('https://')) {
-      shell.openExternal(url);
-    }
-    return { action: 'deny' };
-  });
 
   if (isDev) {
     mainWindow.loadURL(process.env.ELECTRON_RENDERER_URL);
     mainWindow.webContents.openDevTools({ mode: 'detach' });
   } else {
-    mainWindow.loadFile(join(__dirname, '../renderer/index.html'));
+    mainWindow.loadFile(join(currentDir, '../renderer/index.html'));
   }
 
   mainWindow.on('closed', () => {
@@ -71,8 +68,11 @@ if (!gotLock) {
   });
 
   app.whenReady().then(() => {
+    // Attach CSP + permission hardening before any window loads content.
+    applySessionSecurity(session.defaultSession);
+
     // IPC: expose runtime versions to the renderer.
-    ipcMain.handle('app:getVersions', () => ({
+    ipcMain.handle(IPC.GET_VERSIONS, () => ({
       app: app.getVersion(),
       electron: process.versions.electron,
       chrome: process.versions.chrome,
