@@ -45,4 +45,15 @@ describe('Settings page', () => {
     expect(screen.getByText('Ctrl+3')).toBeInTheDocument();
     expect(screen.getByText('Medications')).toBeInTheDocument();
   });
+
+  it('saves settings on Ctrl+S keyboard shortcut', async () => {
+    renderWithRouter(<Settings />, { route: '/app/settings' });
+    const slider = screen.getByLabelText(/base font size/i);
+    fireEvent.change(slider, { target: { value: '22' } });
+
+    await userEvent.keyboard('{Control>}s{/Control}');
+
+    expect(screen.getByRole('status')).toHaveTextContent(/saved/i);
+    expect(loadSettings().fontSize).toBe(22);
+  });
 });

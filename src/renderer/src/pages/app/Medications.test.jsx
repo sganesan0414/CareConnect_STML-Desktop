@@ -1,7 +1,8 @@
-import { renderWithRouter, screen, waitFor } from '../../../../test/testUtils.jsx';
+import { renderWithRouter, screen, waitFor, act } from '../../../../test/testUtils.jsx';
 import userEvent from '@testing-library/user-event';
 import Medications from './Medications.jsx';
 import { saveMeds } from '@/lib/meds.js';
+import { emitNew } from '@/lib/appEvents.js';
 
 describe('Medications page', () => {
   beforeEach(() => {
@@ -53,5 +54,43 @@ describe('Medications page', () => {
   it('shows refill alert in header', () => {
     renderWithRouter(<Medications />, { route: '/app/medications' });
     expect(screen.getByRole('status')).toHaveTextContent(/refill/i);
+  });
+
+  it('opens add modal on Ctrl+N keyboard shortcut', async () => {
+    renderWithRouter(<Medications />, { route: '/app/medications' });
+    await userEvent.keyboard('{Control>}n{/Control}');
+    expect(await screen.findByRole('dialog')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Add Medication' })).toBeInTheDocument();
+  });
+
+  it('opens add modal when native menu emits New via appEvents', async () => {
+    renderWithRouter(<Medications />, { route: '/app/medications' });
+    act(() => {
+      emitNew();
+    });
+    expect(await screen.findByRole('dialog')).toBeInTheDocument();
+  });
+
+  it('toggles taken status via today adherence cell', async () => {
+    saveMeds([
+      {
+        id: 'test-med',
+        name: 'Cell Med',
+        category: 'General',
+        dose: '5 mg',
+        schedule: '08:00 AM',
+        week: ['pending', 'pending', 'pending', 'pending', 'pending', 'pending', 'pending'],
+      },
+    ]);
+
+    renderWithRouter(<Medications />, { route: '/app/medications' });
+    await screen.findByText('Cell Med');
+
+    const todayCell = screen.getByRole('button', { name: /today.*mark taken/i });
+    await userEvent.click(todayCell);
+    expect(screen.getByText('✓ Taken today')).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole('button', { name: /today.*mark not taken/i }));
+    expect(screen.getByRole('button', { name: /mark as taken/i })).toBeInTheDocument();
   });
 });
