@@ -4,12 +4,14 @@
 // display their accelerator (registerAccelerator: false) without registering it
 // twice.
 import { app, Menu, shell, dialog } from 'electron';
+import { IPC, MENU_ACTIONS } from '@shared/ipc.js';
+import { ROUTES } from '@shared/routes.js';
 
 const isMac = process.platform === 'darwin';
 
 export function buildAppMenu(win) {
-  const navigate = (to) => win?.webContents.send('menu:navigate', to);
-  const action = (name) => win?.webContents.send('menu:action', name);
+  const navigate = (to) => win?.webContents.send(IPC.MENU_NAVIGATE, to);
+  const action = (name) => win?.webContents.send(IPC.MENU_ACTION, name);
 
   const showAbout = () => {
     dialog.showMessageBox(win, {
@@ -58,12 +60,12 @@ export function buildAppMenu(win) {
     {
       label: 'File',
       submenu: [
-        { label: 'New…', accelerator: 'CmdOrCtrl+N', registerAccelerator: false, click: () => action('new') },
-        { label: 'New Journal Entry', accelerator: 'CmdOrCtrl+J', registerAccelerator: false, click: () => navigate('/app/journal') },
+        { label: 'New…', accelerator: 'CmdOrCtrl+N', registerAccelerator: false, click: () => action(MENU_ACTIONS.NEW) },
+        { label: 'New Journal Entry', accelerator: 'CmdOrCtrl+J', registerAccelerator: false, click: () => navigate(ROUTES.JOURNAL) },
         { type: 'separator' },
-        { label: 'Print Daily Plan', accelerator: 'CmdOrCtrl+P', registerAccelerator: false, click: () => action('print') },
+        { label: 'Print Daily Plan', accelerator: 'CmdOrCtrl+P', registerAccelerator: false, click: () => action(MENU_ACTIONS.PRINT) },
         { type: 'separator' },
-        { label: 'Sign Out', accelerator: 'Ctrl+Q', registerAccelerator: false, click: () => action('signout') },
+        { label: 'Sign Out', accelerator: 'Ctrl+Q', registerAccelerator: false, click: () => action(MENU_ACTIONS.SIGN_OUT) },
         { type: 'separator' },
         isMac ? { role: 'close' } : { role: 'quit' },
       ],
@@ -87,12 +89,12 @@ export function buildAppMenu(win) {
     {
       label: 'View',
       submenu: [
-        navItem('Home', 1, '/app'),
-        navItem('Daily Plan', 2, '/app/daily-plan'),
-        navItem('Medications', 3, '/app/medications'),
-        navItem('Reminders', 4, '/app/reminders'),
-        navItem('Journal', 5, '/app/journal'),
-        navItem('Settings', 6, '/app/settings'),
+        navItem('Home', 1, ROUTES.HOME),
+        navItem('Daily Plan', 2, ROUTES.DAILY_PLAN),
+        navItem('Medications', 3, ROUTES.MEDICATIONS),
+        navItem('Reminders', 4, ROUTES.REMINDERS),
+        navItem('Journal', 5, ROUTES.JOURNAL),
+        navItem('Settings', 6, ROUTES.SETTINGS),
         { type: 'separator' },
         { role: 'reload' },
         { role: 'forceReload' },
@@ -110,14 +112,14 @@ export function buildAppMenu(win) {
     {
       label: 'Tools',
       submenu: [
-        { label: 'Keyboard Shortcuts', accelerator: 'CmdOrCtrl+/', registerAccelerator: false, click: () => action('shortcuts') },
-        { label: 'Settings', accelerator: 'CmdOrCtrl+6', registerAccelerator: false, click: () => navigate('/app/settings') },
+        { label: 'Keyboard Shortcuts', accelerator: 'CmdOrCtrl+/', registerAccelerator: false, click: () => action(MENU_ACTIONS.SHORTCUTS) },
+        { label: 'Settings', accelerator: 'CmdOrCtrl+6', registerAccelerator: false, click: () => navigate(ROUTES.SETTINGS) },
         { type: 'separator' },
-        { label: 'Bigger Text', accelerator: 'CmdOrCtrl+=', registerAccelerator: false, click: () => action('bigger-text') },
-        { label: 'Smaller Text', accelerator: 'CmdOrCtrl+-', registerAccelerator: false, click: () => action('smaller-text') },
-        { label: 'High Contrast', accelerator: 'Ctrl+H', registerAccelerator: false, click: () => action('high-contrast') },
+        { label: 'Bigger Text', accelerator: 'CmdOrCtrl+=', registerAccelerator: false, click: () => action(MENU_ACTIONS.BIGGER_TEXT) },
+        { label: 'Smaller Text', accelerator: 'CmdOrCtrl+-', registerAccelerator: false, click: () => action(MENU_ACTIONS.SMALLER_TEXT) },
+        { label: 'High Contrast', accelerator: 'Ctrl+H', registerAccelerator: false, click: () => action(MENU_ACTIONS.HIGH_CONTRAST) },
         { type: 'separator' },
-        { label: 'Emergency Contact', accelerator: 'F9', registerAccelerator: false, click: () => action('emergency') },
+        { label: 'Emergency Contact', accelerator: 'F9', registerAccelerator: false, click: () => action(MENU_ACTIONS.EMERGENCY) },
       ],
     },
 
