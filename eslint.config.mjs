@@ -7,7 +7,7 @@ import reactHooks from 'eslint-plugin-react-hooks';
 // the browser + React renderer.
 export default [
   {
-    ignores: ['out/**', 'release/**', 'dist/**', 'node_modules/**'],
+    ignores: ['out/**', 'release/**', 'dist/**', 'node_modules/**', 'coverage/**'],
   },
 
   js.configs.recommended,
@@ -22,7 +22,16 @@ export default [
     },
   },
 
-  // React renderer — browser environment.
+  // Jest tests — Node + browser globals.
+  {
+    files: ['src/**/*.test.{js,jsx}', 'src/test/**/*.{js,jsx}', 'jest.config.cjs'],
+    languageOptions: {
+      ecmaVersion: 2023,
+      sourceType: 'module',
+      globals: { ...globals.node, ...globals.browser, ...globals.jest },
+      parserOptions: { ecmaFeatures: { jsx: true } },
+    },
+  },
   {
     files: ['src/renderer/**/*.{js,jsx}'],
     plugins: { react, 'react-hooks': reactHooks },
