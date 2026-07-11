@@ -32,6 +32,7 @@ export default function Journal() {
 
   const notesRef = useRef(null);
   const formRef = useRef(null);
+  const moodRefs = useRef({});
 
   useEffect(() => {
     saveEntries(entries);
@@ -83,6 +84,25 @@ export default function Journal() {
 
   const sorted = [...entries].sort((a, b) => b.ts - a.ts);
 
+  const onMoodKeyDown = useCallback(
+    (event) => {
+      if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+      event.preventDefault();
+      const index = MOODS.findIndex((m) => m.key === mood);
+      if (index < 0) return;
+      let nextIndex = index;
+      if (event.key === 'Home') nextIndex = 0;
+      else if (event.key === 'End') nextIndex = MOODS.length - 1;
+      else if (event.key === 'ArrowRight') nextIndex = (index + 1) % MOODS.length;
+      else nextIndex = (index - 1 + MOODS.length) % MOODS.length;
+
+      const nextMood = MOODS[nextIndex].key;
+      setMood(nextMood);
+      moodRefs.current[nextMood]?.focus();
+    },
+    [mood]
+  );
+
   return (
     <div className="journal">
       <header className="page-head">
@@ -112,11 +132,16 @@ export default function Journal() {
             {MOODS.map((m) => (
               <button
                 key={m.key}
+                ref={(el) => {
+                  moodRefs.current[m.key] = el;
+                }}
                 type="button"
                 role="radio"
+                tabIndex={mood === m.key ? 0 : -1}
                 aria-checked={mood === m.key}
                 className={`mood-choice ${mood === m.key ? 'is-selected' : ''}`}
                 onClick={() => setMood(m.key)}
+                onKeyDown={onMoodKeyDown}
               >
                 <span aria-hidden="true">{m.emoji}</span> {m.key}
               </button>

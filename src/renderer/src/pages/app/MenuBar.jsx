@@ -9,6 +9,8 @@ export default function MenuBar({ userLabel, onSignOut, onShowShortcuts }) {
   const navigate = useNavigate();
   const [open, setOpen] = useState(null);
   const barRef = useRef(null);
+  const labelRefs = useRef({});
+  const menuItemRefs = useRef({});
 
   useEffect(() => {
     const onDocClick = (e) => {
@@ -51,6 +53,86 @@ export default function MenuBar({ userLabel, onSignOut, onShowShortcuts }) {
     item.onClick?.();
   };
 
+  const getMenuItems = (menuName) => {
+    const map = menuItemRefs.current[menuName] || {};
+    return Object.keys(map)
+      .map(Number)
+      .sort((a, b) => a - b)
+      .map((k) => map[k])
+      .filter(Boolean);
+  };
+
+  const openMenuAndFocus = (menuName, focus = 'none') => {
+    setOpen(menuName);
+    if (focus === 'none') return;
+    requestAnimationFrame(() => {
+      const items = getMenuItems(menuName);
+      if (!items.length) return;
+      if (focus === 'last') items[items.length - 1].focus();
+      else items[0].focus();
+    });
+  };
+
+  const onLabelKeyDown = (menuName) => (event) => {
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      openMenuAndFocus(menuName, 'first');
+      return;
+    }
+    if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      openMenuAndFocus(menuName, 'last');
+      return;
+    }
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      if (open === menuName) setOpen(null);
+      else openMenuAndFocus(menuName, 'first');
+      return;
+    }
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      setOpen(null);
+    }
+  };
+
+  const onMenuItemKeyDown = (menuName) => (event) => {
+    const items = getMenuItems(menuName);
+    if (!items.length) return;
+    const index = items.indexOf(event.currentTarget);
+    if (index < 0) return;
+
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      items[(index + 1) % items.length].focus();
+      return;
+    }
+    if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      items[(index - 1 + items.length) % items.length].focus();
+      return;
+    }
+    if (event.key === 'Home') {
+      event.preventDefault();
+      items[0].focus();
+      return;
+    }
+    if (event.key === 'End') {
+      event.preventDefault();
+      items[items.length - 1].focus();
+      return;
+    }
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      setOpen(null);
+      labelRefs.current[menuName]?.focus();
+      return;
+    }
+    if (event.key === 'Tab') {
+      setOpen(null);
+    }
+  };
+
   return (
     <header className="menubar" ref={barRef}>
       <div className="menubar__brand">
@@ -63,8 +145,14 @@ export default function MenuBar({ userLabel, onSignOut, onShowShortcuts }) {
           <div className="menu" key={name}>
             <button
               className={`menu__label ${open === name ? 'is-open' : ''}`}
+              ref={(el) => {
+                labelRefs.current[name] = el;
+              }}
               onClick={() => setOpen(open === name ? null : name)}
               onMouseEnter={() => open && setOpen(name)}
+              onKeyDown={onLabelKeyDown(name)}
+              aria-haspopup="menu"
+              aria-expanded={open === name}
             >
               {name}
             </button>
@@ -75,7 +163,16 @@ export default function MenuBar({ userLabel, onSignOut, onShowShortcuts }) {
                     <li key={i} className="menu__sep" role="separator" />
                   ) : (
                     <li key={i} role="none">
-                      <button className="menu__item" role="menuitem" onClick={handleItem(item)}>
+                      <button
+                        className="menu__item"
+                        role="menuitem"
+                        ref={(el) => {
+                          if (!menuItemRefs.current[name]) menuItemRefs.current[name] = {};
+                          menuItemRefs.current[name][i] = el;
+                        }}
+                        onKeyDown={onMenuItemKeyDown(name)}
+                        onClick={handleItem(item)}
+                      >
                         <span>{item.label}</span>
                         {item.hint && <span className="menu__hint">{item.hint}</span>}
                       </button>

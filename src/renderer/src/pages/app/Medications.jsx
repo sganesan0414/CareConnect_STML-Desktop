@@ -122,7 +122,6 @@ export default function Medications() {
                       ) : (
                         <span
                           className={cls}
-                          aria-label={`${day}: ${readable}`}
                           title={`${day}: ${readable}`}
                         />
                       )}

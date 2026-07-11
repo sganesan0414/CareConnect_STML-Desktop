@@ -49,6 +49,7 @@ export default function Reminders() {
   const formRef = useRef(null);
   const recurringRef = useRef(null);
   const filterRefs = useRef({});
+  const typeRefs = useRef({});
 
   useEffect(() => {
     saveReminders(reminders);
@@ -149,6 +150,23 @@ export default function Reminders() {
     if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
     event.preventDefault();
     setFilter((current) => nextFilterKey(current, event.key));
+  };
+
+  const onTypeKeyDown = (event) => {
+    if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+    event.preventDefault();
+    const index = TYPES.findIndex((t) => t === form.type);
+    if (index < 0) return;
+
+    let nextIndex = index;
+    if (event.key === 'Home') nextIndex = 0;
+    else if (event.key === 'End') nextIndex = TYPES.length - 1;
+    else if (event.key === 'ArrowRight') nextIndex = (index + 1) % TYPES.length;
+    else nextIndex = (index - 1 + TYPES.length) % TYPES.length;
+
+    const nextType = TYPES[nextIndex];
+    update({ type: nextType });
+    typeRefs.current[nextType]?.focus();
   };
 
   useEffect(() => {
@@ -282,11 +300,16 @@ export default function Reminders() {
                   {TYPES.map((t) => (
                     <button
                       key={t}
+                      ref={(el) => {
+                        typeRefs.current[t] = el;
+                      }}
                       type="button"
                       role="radio"
+                      tabIndex={form.type === t ? 0 : -1}
                       aria-checked={form.type === t}
                       className={`type-pill type-pill--${TYPE_TONE[t]} ${form.type === t ? 'is-selected' : ''}`}
                       onClick={() => update({ type: t })}
+                      onKeyDown={onTypeKeyDown}
                     >
                       {t}
                     </button>

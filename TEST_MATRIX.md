@@ -68,5 +68,6 @@ Goal: confirm the built app speaks correctly in the packaged desktop shell, not 
 - Shortcuts modal focus trapping is automated and passing.
 - App-wide keyboard shortcuts are manually verified as working as designed.
 - Visible focus indicators are manually verified as working as intended.
+- Keyboard tab order has been manually re-verified after the latest keyboard/focus remediation pass.
 - Live-route React rendering is implemented and passing across all routes.
 - Packaged screen-reader verification is completed manually (Windows Narrator).
