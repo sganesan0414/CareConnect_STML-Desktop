@@ -1,4 +1,6 @@
+import { useRef } from 'react';
 import { NAV_ITEMS } from '../../lib/nav.js';
+import { useModalAccessibility } from '../../lib/accessibility.js';
 
 // Navigation rows come straight from the shared NAV_ITEMS so the reference
 // always matches the real Ctrl+1..6 bindings (and the sidebar badges).
@@ -31,12 +33,24 @@ const GENERAL = [
 // Accessible keyboard-shortcuts overlay (common desktop pattern). Grouped into
 // Navigation / Actions / Accessibility / General to match the reference sheet.
 export default function ShortcutsModal({ onClose }) {
+  const dialogRef = useRef(null);
+  const closeRef = useRef(null);
+
+  useModalAccessibility({ onClose, containerRef: dialogRef, initialFocusRef: closeRef });
+
   return (
-    <div className="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="sc-title" onClick={onClose}>
-      <div className="modal modal--shortcuts" onClick={(e) => e.stopPropagation()}>
+    <div className="modal-overlay" onClick={onClose}>
+      <div
+        ref={dialogRef}
+        className="modal modal--shortcuts"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="sc-title"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="modal__head modal__head--navy">
           <h2 id="sc-title"><span aria-hidden="true">⌨</span> Keyboard Shortcuts</h2>
-          <button className="modal__close modal__close--light" onClick={onClose} aria-label="Close">
+          <button ref={closeRef} className="modal__close modal__close--light" onClick={onClose} aria-label="Close">
             <span className="modal__esc">Esc</span> ✕
           </button>
         </div>

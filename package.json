@@ -9,6 +9,8 @@
     "dev": "electron-vite dev",
     "start": "electron-vite preview",
     "lint": "eslint .",
+    "test": "vitest run",
+    "test:a11y": "vitest run src/renderer/src/App.a11y.test.jsx",
     "build": "electron-vite build",
     "package": "electron-vite build && electron-builder --dir",
     "dist": "electron-vite build && electron-builder",
@@ -81,6 +83,11 @@
     "@babel/preset-env": "^7.26.0",
     "@babel/preset-react": "^7.26.3",
     "@eslint/js": "^9.39.4",
+    "@testing-library/jest-dom": "^6.6.4",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
+    "@vitejs/plugin-react": "^5.2.0",
+    "axe-core": "^4.11.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.1.0",
     "@testing-library/user-event": "^14.5.2",
@@ -93,12 +100,14 @@
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^5.2.0",
     "globals": "^15.15.0",
+    "jsdom": "^27.0.0",
     "identity-obj-proxy": "^3.0.0",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "react-router-dom": "^7.18.1",
-    "vite": "^7.3.6"
+    "vite": "^7.3.6",
+    "vitest": "^3.2.4"
   }
 }

@@ -22,6 +22,14 @@ const FILTERS = [
   { key: 'Activity', label: 'Activities' },
 ];
 
+function nextFilterKey(current, key) {
+  const index = FILTERS.findIndex((item) => item.key === current);
+  if (key === 'Home') return FILTERS[0].key;
+  if (key === 'End') return FILTERS[FILTERS.length - 1].key;
+  if (key === 'ArrowRight') return FILTERS[(index + 1) % FILTERS.length].key;
+  return FILTERS[(index - 1 + FILTERS.length) % FILTERS.length].key;
+}
+
 /**
  * The patient's Reminders screen — reached from the sidebar, the toolbar tabs
  * and the native View → Reminders menu (all route to /app/reminders, also
@@ -40,6 +48,7 @@ export default function Reminders() {
   const textRef = useRef(null);
   const formRef = useRef(null);
   const recurringRef = useRef(null);
+  const filterRefs = useRef({});
 
   useEffect(() => {
     saveReminders(reminders);
@@ -136,6 +145,16 @@ export default function Reminders() {
 
   const update = (patch) => setForm((f) => ({ ...f, ...patch }));
 
+  const onFilterKeyDown = (event) => {
+    if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+    event.preventDefault();
+    setFilter((current) => nextFilterKey(current, event.key));
+  };
+
+  useEffect(() => {
+    filterRefs.current[filter]?.focus();
+  }, [filter]);
+
   return (
     <div className="reminders">
       <header className="page-head">
@@ -160,17 +179,25 @@ export default function Reminders() {
           <div className="rem-filters" role="tablist" aria-label="Filter reminders">
             {FILTERS.map((f) => (
               <button
+                ref={(el) => {
+                  filterRefs.current[f.key] = el;
+                }}
                 key={f.key}
                 role="tab"
+                id={`rem-filter-${f.key}`}
+                tabIndex={filter === f.key ? 0 : -1}
                 aria-selected={filter === f.key}
+                aria-controls="reminders-panel"
                 className={`chip ${filter === f.key ? 'is-active' : ''}`}
                 onClick={() => setFilter(f.key)}
+                onKeyDown={onFilterKeyDown}
               >
                 {f.label} <span className="chip__count">{counts[f.key] ?? 0}</span>
               </button>
             ))}
           </div>
 
+          <div id="reminders-panel" role="tabpanel" aria-labelledby={`rem-filter-${filter}`}>
           <h2 className="rem-section"><span aria-hidden="true">🔔</span> Upcoming today</h2>
           {upcoming.length === 0 ? (
             <p className="rem-empty">Nothing upcoming{filter !== 'all' ? ' in this filter' : ''}.</p>
@@ -192,6 +219,7 @@ export default function Reminders() {
               </ul>
             </>
           )}
+          </div>
         </div>
 
         <aside className="rem-aside">

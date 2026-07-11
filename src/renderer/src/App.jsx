@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
 import { loadSettings, applySettings } from './lib/settings.js';
+import { useRouteAccessibility } from './lib/accessibility.js';
 import Landing from './pages/Landing.jsx';
 import Login from './pages/Login.jsx';
 import Register from './pages/Register.jsx';
@@ -15,6 +16,7 @@ import Settings from './pages/app/Settings.jsx';
 
 export default function App() {
   const navigate = useNavigate();
+  const announcement = useRouteAccessibility();
 
   // Apply saved display preferences (font size, high contrast) app-wide on load.
   useEffect(() => {
@@ -29,20 +31,27 @@ export default function App() {
   }, [navigate]);
 
   return (
-    <Routes>
-      <Route path="/" element={<Landing />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
-      <Route path="/forgot-password" element={<ForgotPassword />} />
+    <>
+      <a className="skip-link" href="#main-content">Skip to main content</a>
+      <div className="sr-only" role="status" aria-live="polite" aria-atomic="true">
+        {announcement}
+      </div>
 
-      <Route path="/app" element={<AppShell />}>
-        <Route index element={<Home />} />
-        <Route path="daily-plan" element={<DailyPlan />} />
-        <Route path="medications" element={<Medications />} />
-        <Route path="reminders" element={<Reminders />} />
-        <Route path="journal" element={<Journal />} />
-        <Route path="settings" element={<Settings />} />
-      </Route>
-    </Routes>
+      <Routes>
+        <Route path="/" element={<Landing />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+
+        <Route path="/app" element={<AppShell />}>
+          <Route index element={<Home />} />
+          <Route path="daily-plan" element={<DailyPlan />} />
+          <Route path="medications" element={<Medications />} />
+          <Route path="reminders" element={<Reminders />} />
+          <Route path="journal" element={<Journal />} />
+          <Route path="settings" element={<Settings />} />
+        </Route>
+      </Routes>
+    </>
   );
 }

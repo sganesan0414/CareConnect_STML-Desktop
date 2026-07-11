@@ -51,7 +51,7 @@ export default function Register() {
 
   return (
     <div className="login-body">
-      <main className="login">
+      <main className="login" id="main-content" tabIndex="-1">
         <Link className="login__home" to="/login">← Back to sign in</Link>
 
         <h1 className="login__brand">Care Connect</h1>

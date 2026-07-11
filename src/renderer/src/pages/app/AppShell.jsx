@@ -181,7 +181,7 @@ export default function AppShell() {
           </div>
         </aside>
 
-        <main className="content">
+        <main className="content" id="main-content" tabIndex="-1">
           <Outlet />
         </main>
       </div>

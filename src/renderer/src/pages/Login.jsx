@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { signInWithPin, signInWithPassword } from '../lib/auth.js';
 import { loadSettings } from '../lib/settings.js';
@@ -9,10 +9,30 @@ export default function Login() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [tab, setTab] = useState(searchParams.get('tab') === 'password' ? 'password' : 'pin');
+  const pinTabRef = useRef(null);
+  const passwordTabRef = useRef(null);
+
+  const switchTab = useCallback((nextTab) => setTab(nextTab), []);
+
+  useEffect(() => {
+    const target = tab === 'pin' ? pinTabRef.current : passwordTabRef.current;
+    target?.focus();
+  }, [tab]);
+
+  const onTabKeyDown = useCallback(
+    (event) => {
+      if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+      event.preventDefault();
+      if (event.key === 'Home') return switchTab('pin');
+      if (event.key === 'End') return switchTab('password');
+      switchTab(tab === 'pin' ? 'password' : 'pin');
+    },
+    [switchTab, tab]
+  );
 
   return (
     <div className="login-body">
-      <main className="login">
+      <main className="login" id="main-content" tabIndex="-1">
         <Link className="login__home" to="/">← Back</Link>
 
         <h1 className="login__brand">Care Connect</h1>
@@ -24,18 +44,28 @@ export default function Login() {
 
           <div className="tabs" role="tablist" aria-label="Sign in method">
             <button
+              ref={pinTabRef}
+              id="signin-tab-pin"
               className={`tab ${tab === 'pin' ? 'is-active' : ''}`}
               role="tab"
+              tabIndex={tab === 'pin' ? 0 : -1}
               aria-selected={tab === 'pin'}
-              onClick={() => setTab('pin')}
+              aria-controls="signin-panel-pin"
+              onClick={() => switchTab('pin')}
+              onKeyDown={onTabKeyDown}
             >
               PIN
             </button>
             <button
+              ref={passwordTabRef}
+              id="signin-tab-password"
               className={`tab ${tab === 'password' ? 'is-active' : ''}`}
               role="tab"
+              tabIndex={tab === 'password' ? 0 : -1}
               aria-selected={tab === 'password'}
-              onClick={() => setTab('password')}
+              aria-controls="signin-panel-password"
+              onClick={() => switchTab('password')}
+              onKeyDown={onTabKeyDown}
             >
               Password
             </button>
@@ -98,7 +128,7 @@ function PinPanel({ navigate }) {
   }, [add, del]);
 
   return (
-    <div className="panel is-active" role="tabpanel">
+    <div className="panel is-active" role="tabpanel" id="signin-panel-pin" aria-labelledby="signin-tab-pin">
       <p className="pin__label">Enter your 4-digit PIN</p>
 
       <div className="pin__dots" aria-hidden="true">
@@ -148,7 +178,7 @@ function PasswordPanel({ navigate, initialEmail }) {
   };
 
   return (
-    <div className="panel is-active" role="tabpanel">
+    <div className="panel is-active" role="tabpanel" id="signin-panel-password" aria-labelledby="signin-tab-password">
       {error && (
         <div className="alert" role="alert">
           <span className="alert__icon" aria-hidden="true">⚠</span>

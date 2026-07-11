@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { useModalAccessibility } from '../../lib/accessibility.js';
 
 /**
  * "Add Medication" modal (common desktop pattern: modal dialog with primary /
@@ -15,6 +16,7 @@ export default function AddMedicationModal({ onAdd, onClose }) {
   const [error, setError] = useState('');
 
   const firstFieldRef = useRef(null);
+  const dialogRef = useRef(null);
 
   const submit = useCallback(() => {
     if (!name.trim()) {
@@ -26,35 +28,32 @@ export default function AddMedicationModal({ onAdd, onClose }) {
     onClose();
   }, [name, category, dose, schedule, onAdd, onClose]);
 
-  // Keyboard: Esc closes, Ctrl/Cmd+S submits (matches the button hint).
+  useModalAccessibility({ onClose, containerRef: dialogRef, initialFocusRef: firstFieldRef });
+
   useEffect(() => {
     const onKey = (e) => {
-      if (e.key === 'Escape') {
-        e.preventDefault();
-        onClose();
-      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
         e.preventDefault();
         submit();
       }
     };
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);
-  }, [onClose, submit]);
-
-  // Focus the first field when the dialog opens.
-  useEffect(() => {
-    firstFieldRef.current?.focus();
-  }, []);
+  }, [submit]);
 
   return (
     <div
       className="modal-overlay"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="add-med-title"
       onClick={onClose}
     >
-      <div className="modal modal--task" onClick={(e) => e.stopPropagation()}>
+      <div
+        ref={dialogRef}
+        className="modal modal--task"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="add-med-title"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="modal__head modal__head--navy">
           <h2 id="add-med-title">Add Medication</h2>
           <button className="modal__close modal__close--light" onClick={onClose} aria-label="Close">

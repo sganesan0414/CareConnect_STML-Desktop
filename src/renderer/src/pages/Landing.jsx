@@ -64,9 +64,9 @@ export default function Landing() {
         </div>
       </header>
 
-      <main id="top">
+      <main id="main-content" tabIndex="-1">
         {/* ============================ HERO ============================ */}
-        <section className="hero">
+        <section className="hero" id="top">
           <div className="hero__inner">
             <div className="hero__copy">
               <span className="badge">

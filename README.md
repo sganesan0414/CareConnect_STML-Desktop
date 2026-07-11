@@ -49,6 +49,25 @@ The app implements the desktop accessibility requirement across the main screens
 
 Manual verification target: test the app with keyboard only, NVDA on Windows (or VoiceOver on Mac), and the operating system's high-contrast setting.
 
+## Testing
+
+Testing status, route coverage, and manual verification details are tracked in:
+
+- [TESTING_CHECKLIST.md](TESTING_CHECKLIST.md)
+- [TEST_MATRIX.md](TEST_MATRIX.md)
+
+Run the current automated suites:
+
+```bash
+npm run test:a11y
+npm run test -- src/renderer/src/pages/Login.keyboard.test.jsx src/renderer/src/pages/app/ShortcutsModal.keyboard.test.jsx src/renderer/src/App.a11y.test.jsx
+npm run test -- src/renderer/src/App.live-routes.test.jsx
+```
+
+Known deferred accessibility fixes are tracked in:
+
+- [ACCESSIBILITY_ISSUES_BACKLOG.md](ACCESSIBILITY_ISSUES_BACKLOG.md)
+
 ## Build a distributable
 
 ```bash
