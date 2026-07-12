@@ -14,7 +14,7 @@ export default [
 
   // Main process, preload, shared code and build config — Node environment.
   {
-    files: ['src/main/**/*.js', 'src/preload/**/*.js', 'src/shared/**/*.js', '*.mjs'],
+    files: ['src/main/**/*.js', 'src/preload/**/*.js', 'src/shared/**/*.js', '*.mjs', 'scripts/**/*.mjs'],
     languageOptions: {
       ecmaVersion: 2023,
       sourceType: 'module',
@@ -22,15 +22,19 @@ export default [
     },
   },
 
-  // Jest tests — Node + browser globals.
+  // Jest tests + test utilities — Node + browser + jest globals, and the React
+  // plugin so JSX element names count as variable usages (jsx-uses-vars).
   {
     files: ['src/**/*.test.{js,jsx}', 'src/test/**/*.{js,jsx}', 'jest.config.cjs'],
+    plugins: { react },
     languageOptions: {
       ecmaVersion: 2023,
       sourceType: 'module',
       globals: { ...globals.node, ...globals.browser, ...globals.jest },
       parserOptions: { ecmaFeatures: { jsx: true } },
     },
+    settings: { react: { version: 'detect' } },
+    rules: { 'react/jsx-uses-vars': 'error' },
   },
   {
     files: ['src/renderer/**/*.{js,jsx}'],

@@ -31,19 +31,25 @@ export default function Medications() {
   const openAdd = useCallback(() => setShowAdd(true), []);
   const handleAdd = useCallback((med) => setMeds((prev) => [...prev, makeMed(med)]), []);
 
-  // Toggle today's dose between taken and pending for one medication.
-  const toggleTaken = useCallback(
-    (id) =>
+  // Toggle any day's dose for one medication. Today flips taken ↔ not-yet
+  // (pending); a past day flips taken ↔ missed (the day is over, so "not taken"
+  // means the dose was missed).
+  const toggleDay = useCallback(
+    (id, index) =>
       setMeds((prev) =>
         prev.map((m) => {
           if (m.id !== id) return m;
           const week = m.week.slice();
-          week[today] = week[today] === 'taken' ? 'pending' : 'taken';
+          const off = index === today ? 'pending' : 'missed';
+          week[index] = week[index] === 'taken' ? off : 'taken';
           return { ...m, week };
         })
       ),
     [today]
   );
+
+  // Footer "Mark as taken / Undo" acts on today.
+  const toggleTaken = useCallback((id) => toggleDay(id, today), [toggleDay, today]);
 
   // Page shortcut: Ctrl/Cmd+N opens the Add Medication dialog (matches the button hint).
   useEffect(() => {
@@ -105,26 +111,26 @@ export default function Medications() {
                 {WEEK_DAYS.map((day, i) => {
                   const status = med.week[i];
                   const isToday = i === today;
+                  const isTaken = status === 'taken';
                   const readable =
                     status === 'taken' ? 'Taken' : status === 'missed' ? 'Missed' : 'Not recorded';
-                  const cls = `adherence__cell adherence__cell--${status} ${isToday ? 'is-today is-clickable' : ''}`;
+                  // Non-colour cue so the taken/missed state is not conveyed by
+                  // colour alone (WCAG 1.4.1).
+                  const symbol = status === 'taken' ? '✓' : status === 'missed' ? '✕' : '·';
+                  const cls = `adherence__cell adherence__cell--${status} is-clickable ${isToday ? 'is-today' : ''}`;
+                  const label = `${isToday ? 'Today, ' : ''}${day}: ${readable}. ${isTaken ? 'Mark as not taken' : 'Mark as taken'}`;
                   return (
                     <div className="adherence__day" key={day}>
                       <span className={`adherence__dow ${isToday ? 'is-today' : ''}`}>{day}</span>
-                      {isToday ? (
-                        <button
-                          className={cls}
-                          onClick={() => toggleTaken(med.id)}
-                          aria-pressed={takenToday}
-                          aria-label={`Today (${day}): ${readable}. ${takenToday ? 'Mark not taken' : 'Mark taken'}`}
-                          title={`Today: ${readable} — click to ${takenToday ? 'undo' : 'mark taken'}`}
-                        />
-                      ) : (
-                        <span
-                          className={cls}
-                          title={`${day}: ${readable}`}
-                        />
-                      )}
+                      <button
+                        className={cls}
+                        onClick={() => toggleDay(med.id, i)}
+                        aria-pressed={isTaken}
+                        aria-label={label}
+                        title={label}
+                      >
+                        <span aria-hidden="true">{symbol}</span>
+                      </button>
                     </div>
                   );
                 })}

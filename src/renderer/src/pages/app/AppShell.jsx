@@ -4,6 +4,7 @@ import { NAV_ITEMS, DIGIT_TO_ROUTE, EMERGENCY_CONTACT } from '../../lib/nav.js';
 import { getCurrentUser, clearSession } from '../../lib/auth.js';
 import { emitNew } from '../../lib/appEvents.js';
 import { loadSettings, saveSettings, applySettings, FONT_MIN, FONT_MAX } from '../../lib/settings.js';
+import { handleArrowNavigation } from '../../lib/accessibility.js';
 import { MENU_ACTIONS } from '@shared/ipc.js';
 import MenuBar from './MenuBar.jsx';
 import ShortcutsModal from './ShortcutsModal.jsx';
@@ -136,7 +137,11 @@ export default function AppShell() {
 
       {/* Toolbar tabs */}
       <div className="toolbar">
-        <nav className="toolbar__tabs" aria-label="Sections">
+        <nav
+          className="toolbar__tabs"
+          aria-label="Sections"
+          onKeyDown={(e) => handleArrowNavigation(e, 'horizontal')}
+        >
           {NAV_ITEMS.map((item) => (
             <NavLink
               key={item.to}
@@ -159,7 +164,11 @@ export default function AppShell() {
       <div className="shell-body">
         <aside className="sidebar">
           <p className="sidebar__label">Navigation</p>
-          <nav className="sidebar__nav" aria-label="Primary">
+          <nav
+            className="sidebar__nav"
+            aria-label="Primary"
+            onKeyDown={(e) => handleArrowNavigation(e, 'vertical')}
+          >
             {NAV_ITEMS.map((item) => (
               <NavLink
                 key={item.to}

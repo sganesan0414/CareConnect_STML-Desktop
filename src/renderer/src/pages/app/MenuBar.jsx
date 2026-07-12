@@ -48,6 +48,12 @@ export default function MenuBar({ userLabel, onSignOut, onShowShortcuts }) {
     ],
   };
 
+  const menuNames = Object.keys(MENUS);
+  const siblingMenu = (menuName, dir) => {
+    const i = menuNames.indexOf(menuName);
+    return menuNames[(i + dir + menuNames.length) % menuNames.length];
+  };
+
   const handleItem = (item) => () => {
     setOpen(null);
     item.onClick?.();
@@ -74,6 +80,14 @@ export default function MenuBar({ userLabel, onSignOut, onShowShortcuts }) {
   };
 
   const onLabelKeyDown = (menuName) => (event) => {
+    if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {
+      event.preventDefault();
+      const next = siblingMenu(menuName, event.key === 'ArrowRight' ? 1 : -1);
+      // Move focus along the bar; if a menu is already open, open the next one.
+      if (open) setOpen(next);
+      requestAnimationFrame(() => labelRefs.current[next]?.focus());
+      return;
+    }
     if (event.key === 'ArrowDown') {
       event.preventDefault();
       openMenuAndFocus(menuName, 'first');
@@ -110,6 +124,12 @@ export default function MenuBar({ userLabel, onSignOut, onShowShortcuts }) {
     if (event.key === 'ArrowUp') {
       event.preventDefault();
       items[(index - 1 + items.length) % items.length].focus();
+      return;
+    }
+    if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {
+      // Move to the adjacent top-level menu and open it (menu-bar behaviour).
+      event.preventDefault();
+      openMenuAndFocus(siblingMenu(menuName, event.key === 'ArrowRight' ? 1 : -1), 'first');
       return;
     }
     if (event.key === 'Home') {

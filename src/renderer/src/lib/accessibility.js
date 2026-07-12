@@ -85,3 +85,35 @@ export function useModalAccessibility({ onClose, containerRef, initialFocusRef }
     };
   }, [containerRef, initialFocusRef, onClose]);
 }
+
+/**
+ * Roving arrow-key navigation for a container of links/buttons. Attach to a
+ * container's onKeyDown; Arrow keys move focus between its focusable children
+ * (wrapping around), with Home / End jumping to the ends. Tab behaviour is
+ * unchanged. `orientation` selects Up/Down ('vertical') or Left/Right
+ * ('horizontal').
+ */
+export function handleArrowNavigation(event, orientation = 'vertical') {
+  const nextKeys = orientation === 'horizontal' ? ['ArrowRight'] : ['ArrowDown'];
+  const prevKeys = orientation === 'horizontal' ? ['ArrowLeft'] : ['ArrowUp'];
+  if (![...nextKeys, ...prevKeys, 'Home', 'End'].includes(event.key)) return;
+
+  const items = Array.from(
+    event.currentTarget.querySelectorAll(FOCUSABLE)
+  ).filter((el) => el.getAttribute('aria-hidden') !== 'true');
+  if (items.length === 0) return;
+
+  const current = items.indexOf(document.activeElement);
+  let target = null;
+  if (event.key === 'Home') target = items[0];
+  else if (event.key === 'End') target = items[items.length - 1];
+  else if (nextKeys.includes(event.key)) target = items[current < 0 ? 0 : (current + 1) % items.length];
+  else if (prevKeys.includes(event.key)) {
+    target = items[current < 0 ? items.length - 1 : (current - 1 + items.length) % items.length];
+  }
+
+  if (target) {
+    event.preventDefault();
+    target.focus();
+  }
+}

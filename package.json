@@ -9,7 +9,7 @@
     "dev": "electron-vite dev",
     "start": "electron-vite preview",
     "lint": "eslint .",
-    "test": "vitest run",
+    "a11y:contrast": "node scripts/check-contrast.mjs",
     "test:a11y": "vitest run src/renderer/src/App.a11y.test.jsx",
     "build": "electron-vite build",
     "package": "electron-vite build && electron-builder --dir",
