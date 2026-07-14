@@ -21,8 +21,8 @@ describe('ShortcutsModal', () => {
 
   it('calls onClose when overlay is clicked', async () => {
     const onClose = jest.fn();
-    render(<ShortcutsModal onClose={onClose} />);
-    await userEvent.click(screen.getByRole('dialog'));
+    const { container } = render(<ShortcutsModal onClose={onClose} />);
+    await userEvent.click(container.querySelector('.modal-overlay'));
     expect(onClose).toHaveBeenCalled();
   });
 

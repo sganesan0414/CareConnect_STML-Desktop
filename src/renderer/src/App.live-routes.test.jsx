@@ -2,7 +2,6 @@ import axe from 'axe-core';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
-import { vi } from 'vitest';
 import App from './App.jsx';
 
 const AXE_OPTIONS = {
@@ -127,11 +126,11 @@ function seedAppSession(path) {
 
 function ensureElectronBridgeStubs() {
   window.careconnect = {
-    onNavigate: vi.fn(() => () => {}),
-    onMenuAction: vi.fn(() => () => {}),
+    onNavigate: jest.fn(() => () => {}),
+    onMenuAction: jest.fn(() => () => {}),
   };
-  window.print = vi.fn();
-  window.alert = vi.fn();
+  window.print = jest.fn();
+  window.alert = jest.fn();
 }
 
 async function expectCommonRouteBehavior(container, expectedTitle, heading) {

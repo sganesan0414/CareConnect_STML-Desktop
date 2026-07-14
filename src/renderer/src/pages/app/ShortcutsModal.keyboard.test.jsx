@@ -1,9 +1,8 @@
 import { render, fireEvent, waitFor } from '@testing-library/react';
-import { vi } from 'vitest';
 import ShortcutsModal from './ShortcutsModal.jsx';
 
 function renderModal() {
-  const onClose = vi.fn();
+  const onClose = jest.fn();
   const utils = render(<ShortcutsModal onClose={onClose} />);
   const closeButton = utils.getByRole('button', { name: /close/i });
   return { ...utils, onClose, closeButton };

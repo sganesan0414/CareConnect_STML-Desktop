@@ -55,14 +55,20 @@ Testing status, route coverage, and manual verification details are tracked in:
 
 - [TESTING_CHECKLIST.md](TESTING_CHECKLIST.md)
 - [TEST_MATRIX.md](TEST_MATRIX.md)
+- [COVERAGE_REPORT.md](COVERAGE_REPORT.md)
+- [VPAT.md](VPAT.md) — WCAG 2.1 A/AA accessibility conformance report
 
-Run the current automated suites:
+Run the full suite:
 
 ```bash
-npm run test:a11y
-npm run test -- src/renderer/src/pages/Login.keyboard.test.jsx src/renderer/src/pages/app/ShortcutsModal.keyboard.test.jsx src/renderer/src/App.a11y.test.jsx
-npm run test -- src/renderer/src/App.live-routes.test.jsx
+npm test               # all Jest suites
+npm run test:coverage  # all suites + coverage report (90% threshold on stmts/branches/funcs/lines)
+npm run test:a11y      # static axe fixtures (vitest)
 ```
+
+Every page/component has its own test file (render, validation, keyboard interaction, and
+an `axe-core` accessibility scan) alongside the full-route render pass in
+`src/renderer/src/App.live-routes.test.jsx`.
 
 Known deferred accessibility fixes are tracked in:
 

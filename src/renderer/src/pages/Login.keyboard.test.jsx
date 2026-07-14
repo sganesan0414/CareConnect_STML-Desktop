@@ -1,21 +1,20 @@
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { vi } from 'vitest';
 
-const navigateMock = vi.hoisted(() => vi.fn());
-const searchParamsMock = vi.hoisted(() => vi.fn(() => [new URLSearchParams(), vi.fn()]));
+const mockNavigate = jest.fn();
+const mockUseSearchParams = jest.fn(() => [new URLSearchParams(), jest.fn()]);
 
-vi.mock('react-router-dom', () => ({
+jest.mock('react-router-dom', () => ({
   Link: ({ children, to, ...props }) => <a href={typeof to === 'string' ? to : '#'} {...props}>{children}</a>,
-  useNavigate: () => navigateMock,
-  useSearchParams: () => searchParamsMock(),
+  useNavigate: () => mockNavigate,
+  useSearchParams: () => mockUseSearchParams(),
 }));
 
 import Login from './Login.jsx';
 
 describe('Login keyboard behavior', () => {
   beforeEach(() => {
-    navigateMock.mockReset();
+    mockNavigate.mockReset();
   });
 
   it('moves between PIN and password tabs with arrow keys', async () => {

@@ -45,7 +45,7 @@ describe('Medications page', () => {
     renderWithRouter(<Medications />, { route: '/app/medications' });
     await screen.findByText('Test Med');
 
-    const markBtn = screen.getByRole('button', { name: /mark as taken/i });
+    const markBtn = screen.getByRole('button', { name: 'Mark as taken' });
     await userEvent.click(markBtn);
 
     expect(screen.getByText('✓ Taken today')).toBeInTheDocument();
@@ -86,11 +86,11 @@ describe('Medications page', () => {
     renderWithRouter(<Medications />, { route: '/app/medications' });
     await screen.findByText('Cell Med');
 
-    const todayCell = screen.getByRole('button', { name: /today.*mark taken/i });
+    const todayCell = screen.getByRole('button', { name: /today.*mark as taken/i });
     await userEvent.click(todayCell);
     expect(screen.getByText('✓ Taken today')).toBeInTheDocument();
 
-    await userEvent.click(screen.getByRole('button', { name: /today.*mark not taken/i }));
-    expect(screen.getByRole('button', { name: /mark as taken/i })).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: /today.*mark as not taken/i }));
+    expect(screen.getByRole('button', { name: 'Mark as taken' })).toBeInTheDocument();
   });
 });

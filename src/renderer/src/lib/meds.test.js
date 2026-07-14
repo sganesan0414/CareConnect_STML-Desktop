@@ -43,4 +43,16 @@ describe('meds store', () => {
     expect(todayIndex(monday)).toBe(0);
     expect(WEEK_DAYS[todayIndex(monday)]).toBe('Mon');
   });
+
+  it('makeMed defaults category/dose/schedule when omitted', () => {
+    const med = makeMed({ name: 'Aspirin' });
+    expect(med.category).toBe('General');
+    expect(med.dose).toBe('');
+    expect(med.schedule).toBe('');
+  });
+
+  it('returns defaults when localStorage holds malformed JSON', () => {
+    localStorage.setItem('careconnect.meds', '{not-json');
+    expect(loadMeds().length).toBeGreaterThan(0);
+  });
 });
