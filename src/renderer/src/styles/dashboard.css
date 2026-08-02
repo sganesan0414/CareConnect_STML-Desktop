@@ -2440,3 +2440,121 @@
   padding: 0.6rem 0.85rem;
   font-size: 0.9rem;
 }
+
+/* ============================ MOTION & TRANSITIONS ============================
+   A single, consistent motion layer for the authenticated app so hover, focus,
+   selection and route changes feel as smooth as the landing/login pages instead
+   of snapping. Timing echoes those pages (~0.15s ease). Everything here is
+   globally neutralised under prefers-reduced-motion via base.css, so no
+   per-rule guards are needed. */
+
+/* --- Interactive elements: smooth hover / focus / selection feedback --- */
+.menu__label,
+.menu__item,
+.menubar__kbd,
+.menubar__signout,
+.tab-btn,
+.side-link,
+.hero-btn,
+.mark-btn,
+.ghost-btn,
+.pill-btn,
+.chip,
+.type-pill,
+.mood-choice,
+.prompt-card,
+.link-arrow,
+.link-edit,
+.panel__link,
+.rem-cancel,
+.task-form__cancel,
+.modal__close,
+.adherence__cell {
+  transition: background-color 0.15s ease, border-color 0.15s ease,
+    color 0.15s ease, box-shadow 0.15s ease, transform 0.12s ease;
+}
+
+/* Primary action buttons and toggles get a subtle "press" on click. */
+.hero-btn:active,
+.mark-btn:active,
+.ghost-btn:active,
+.pill-btn:active,
+.chip:active,
+.type-pill:active,
+.mood-choice:active {
+  transform: translateY(1px);
+}
+
+/* --- Content cards lift gently on hover, echoing the landing feature cards --- */
+.stat-card,
+.plan-card,
+.rem-card,
+.med-card,
+.je-card {
+  transition: box-shadow 0.18s ease, transform 0.18s ease, border-color 0.18s ease;
+}
+
+.stat-card:hover,
+.plan-card:hover,
+.rem-card:hover,
+.med-card:hover,
+.je-card:hover {
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.07);
+  transform: translateY(-2px);
+}
+
+/* --- Completion checks: smooth fill + a small pop when a task is marked done --- */
+.task-row__check,
+.plan-item__check,
+.plan-card__check,
+.rem-card__dot {
+  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+}
+
+.task-row.is-done .task-row__check,
+.plan-item.is-done .plan-item__check,
+.plan-card.is-done .plan-card__check,
+.rem-card.is-done .rem-card__dot {
+  animation: check-pop 0.3s ease;
+}
+
+@keyframes check-pop {
+  0% { transform: scale(1); }
+  45% { transform: scale(1.18); }
+  100% { transform: scale(1); }
+}
+
+/* --- Route changes: each page fades/rises in as it mounts --- */
+.dashboard,
+.daily-plan,
+.medications,
+.reminders,
+.journal,
+.settings,
+.placeholder {
+  animation: page-in 0.28s ease backwards;
+}
+
+@keyframes page-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- Modals: overlay fades, dialog scales up from slightly below --- */
+.modal-overlay {
+  animation: overlay-in 0.18s ease backwards;
+}
+
+.modal {
+  animation: modal-in 0.24s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+
+@keyframes overlay-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes modal-in {
+  from { opacity: 0; transform: translateY(14px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
