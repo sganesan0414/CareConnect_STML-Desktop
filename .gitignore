@@ -2,7 +2,7 @@ node_modules/
 dist/
 release/
 out/
-coverage/
+#coverage/
 .DS_Store
 npm-debug.log*
 *.log
